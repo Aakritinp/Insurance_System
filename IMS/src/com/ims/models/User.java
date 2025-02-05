@@ -1,24 +1,30 @@
 package com.ims.models;
 
 public class User {
-    private String username;
-    private String password;
-    private String name;
-    private int id;
-    private String role;
-    private String email;
-    private String address;
-    private String gender;
-    private String dob;
+    protected int userId;
+    protected String username;
+    protected String password;
 
-    public User(String username, String password, String name, String role, String email, String address, String gender, String dob) {
+    public User(int userId, String username, String password) {
+        this.userId = userId;
         this.username = username;
         this.password = password;
-        this.name = name;
-        this.role = role;
-        this.email = email;
-        this.address = address;
-        this.gender = gender;
-        this.dob = dob;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String toString() {
+        return "User ID: " + userId + ", Username: " + username;
     }
 }

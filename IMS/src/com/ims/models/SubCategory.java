@@ -1,13 +1,30 @@
 package com.ims.models;
 
 public class SubCategory {
-    private int id;
-    private String name;
-    private int category_id;
+    private int subCategoryId;
+    private String subCategoryName;
+    private int categoryId;
 
-    public SubCategory(int id, String name, int category_id) {
-        this.id = id;
-        this.name = name;
-        this.category_id = category_id;
+    public SubCategory(int subCategoryId, String subCategoryName, int categoryId) {
+        this.subCategoryId = subCategoryId;
+        this.subCategoryName = subCategoryName;
+        this.categoryId = categoryId;
+    }
+
+    public int getSubCategoryId() {
+        return subCategoryId;
+    }
+
+    public String getSubCategoryName() {
+        return subCategoryName;
+    }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    @Override
+    public String toString() {
+        return "SubCategory ID: " + subCategoryId + ", Name: " + subCategoryName + ", Category ID: " + categoryId;
     }
 }
