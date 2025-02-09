@@ -18,6 +18,10 @@ public class SubCategory {
     public String getSubCategoryName() {
         return subCategoryName;
     }
+    public void setSubCategoryName(String subCategoryName)
+    {
+        this.subCategoryName = subCategoryName;
+    }
 
     public int getCategoryId() {
         return categoryId;
