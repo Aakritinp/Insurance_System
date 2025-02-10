@@ -9,6 +9,7 @@ import com.ims.models.Customer;
 import com.ims.models.Policy;
 import com.ims.models.SubCategory;
 
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -20,301 +21,346 @@ public class MainClient {
 
         boolean running = true;
         while (running) {
-            System.out.println("\nWelcome to Insurance Management System");
-            System.out.println("1. Admin");
-            System.out.println("2. Customer");
-            System.out.println("3. Exit");
-            System.out.print("Enter your choice: ");
-            int userTypeChoice = scanner.nextInt();
+            try {
+                System.out.println("\n-----------------------------");
+                System.out.println("Welcome to Insurance Management System");
+                System.out.println("1. Admin");
+                System.out.println("2. Customer");
+                System.out.println("3. Exit");
+                System.out.println("-----------------------------");
+                System.out.print("Enter your choice: ");
+                int userTypeChoice = scanner.nextInt();
 
-            switch (userTypeChoice) {
-                case 1:
-                    if (handleAdminOperations(scanner, insuranceDAO)) {
-                        System.out.println("Logged out from Admin.");
-                    }
-                    break;
-                case 2:
-                    System.out.println("1. Login");
-                    System.out.println("2. Register");
-                    int customerChoice = scanner.nextInt();
-
-                    switch (customerChoice) {
-                        case 1:
-                            System.out.print("Enter your username: ");
-                            String username = scanner.next();
-                            System.out.print("Enter your password: ");
-                            String password = scanner.next();
-                            Customer customer = customerDAO.loginCustomer(username, password);
-                            if (customer != null) {
-                                System.out.println("Login successful.");
-                                System.out.print("Enter your choice: ");
-                                if (handleCustomerOperations(scanner, insuranceDAO, customer)) {
-                                    System.out.println("Logged out from Customer.");
-
-                                }
-                            } else {
-                                System.out.println("Login failed. Invalid username or password.");
-                            }
-                            break;
-                        case 2:
-                            System.out.print("Enter your username: ");
-                            String registerUsername = scanner.next();
-                            System.out.print("Enter your password: ");
-                            String registerPassword = scanner.next();
-                            System.out.print("Enter your full name: ");
-                            String fullName = scanner.next();
-                            Customer newCustomer = new Customer((int) Math.random(), registerUsername, registerPassword, fullName);
-                            customerDAO.registerCustomer(newCustomer);
-                            break;
-                    }
-
-                    break;
-                case 3:
-                    System.out.println("Exiting...");
-                    running = false;
-                    break;
-                default:
-                    System.out.println("Invalid choice. Try again.");
+                switch (userTypeChoice) {
+                    case 1:
+                        if (handleAdminOperations(scanner, insuranceDAO)) {
+                            System.out.println("Logged out from Admin.");
+                        }
+                        break;
+                    case 2:
+                        handleCustomerLoginAndRegistration(scanner, customerDAO, insuranceDAO);
+                        break;
+                    case 3:
+                        System.out.println("Exiting... Thank you for using the system!");
+                        running = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a valid choice.");
+                scanner.nextLine(); // Clear the buffer
             }
         }
         scanner.close();
     }
 
-
     private static boolean handleAdminOperations(Scanner scanner, InsuranceDAO insuranceDAO) {
-        boolean adminLoggedIn = true;
-        System.out.println("Admin Login");
+        System.out.println("\n*** Admin Login ***");
         System.out.print("Enter Username: ");
         String username = scanner.next();
         System.out.print("Enter Password: ");
         String password = scanner.next();
 
         if ("admin".equals(username) && "admin123".equals(password)) {
+            boolean adminLoggedIn = true;
             while (adminLoggedIn) {
-                System.out.println("\nAdmin Menu");
-                System.out.println("1. View Users");
-                System.out.println("2. Add Category");
-                System.out.println("3. View Categories");
-                System.out.println("4. Update Category");
-                System.out.println("5. Delete Category");
-                System.out.println("6. Add Sub-Category");
-                System.out.println("7. View Sub-Categories");
-                System.out.println("8. Update Sub-Category");
-                System.out.println("9. Delete Sub-Category");
-                System.out.println("10. Add Policy");
-                System.out.println("11. View Policies");
-                System.out.println("12. Update Policy");
-                System.out.println("13. Delete Policy");
-                System.out.println("14. View/Activate/Cancel Policy Requests");
-                System.out.println("15. Logout");
+                try {
+                    System.out.println("\n-----------------------------");
+                    System.out.println("Admin Menu");
+                    System.out.println("1. Manage Categories");
+                    System.out.println("2. Manage Sub-Categories");
+                    System.out.println("3. Manage Policies");
+                    System.out.println("4. Logout");
+                    System.out.println("-----------------------------");
+                    System.out.print("Enter your choice: ");
+                    int choice = scanner.nextInt();
+
+                    switch (choice) {
+                        case 1:
+                            handleCategoryManagement(scanner, insuranceDAO);
+                            break;
+                        case 2:
+                            handleSubCategoryManagement(scanner, insuranceDAO);
+                            break;
+                        case 3:
+                            handlePolicyManagement(scanner, insuranceDAO);
+                            break;
+                        case 4:
+                            adminLoggedIn = false;
+                            System.out.println("Logged out from Admin.");
+                            break;
+                        default:
+                            System.out.println("Invalid choice. Please enter a valid option.");
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a number.");
+                    scanner.nextLine();
+                }
+            }
+            return true;
+        } else {
+            System.out.println("Invalid Admin credentials. Please try again.");
+            return false;
+        }
+    }
+
+    private static void handleCategoryManagement(Scanner scanner, InsuranceDAO insuranceDAO) {
+        System.out.println("\n--- Category Management ---");
+        System.out.println("1. Add Category");
+        System.out.println("2. View Categories");
+        System.out.println("3. Update Category");
+        System.out.println("4. Delete Category");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        try {
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Category ID (must be an integer): ");
+                    int categoryId = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter Category Name: ");
+                    String categoryName = scanner.nextLine();
+                    insuranceDAO.addCategory(new Category(categoryId, categoryName));
+                    break;
+                case 2:
+                    List<Category> categories = insuranceDAO.viewCategories();
+                    if (categories.isEmpty()) {
+                        System.out.println("Empty list. Please add categories to view.");
+                    } else {
+                        categories.forEach(System.out::println);
+                    }
+                    break;
+                case 3:
+                    System.out.print("Enter Category ID to Update: ");
+                    int updateCategoryId = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter New Category Name: ");
+                    String newCategoryName = scanner.nextLine();
+                    insuranceDAO.updateCategory(updateCategoryId, newCategoryName);
+                    break;
+                case 4:
+                    System.out.print("Enter Category ID to Delete: ");
+                    int deleteCategoryId = scanner.nextInt();
+                    insuranceDAO.deleteCategory(deleteCategoryId);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+    }
+
+    private static void handleSubCategoryManagement(Scanner scanner, InsuranceDAO insuranceDAO) {
+        System.out.println("\n--- Sub-Category Management ---");
+        System.out.println("1. Add Sub-Category");
+        System.out.println("2. View Sub-Categories");
+        System.out.println("3. Update Sub-Category");
+        System.out.println("4. Delete Sub-Category");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        try {
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Sub-Category ID: ");
+                    int subCategoryId = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter Sub-Category Name: ");
+                    String subCategoryName = scanner.nextLine();
+                    System.out.print("Enter Category ID: ");
+                    int categoryId = scanner.nextInt();
+                    insuranceDAO.addSubCategory(new SubCategory(subCategoryId, subCategoryName, categoryId));
+                    break;
+                case 2:
+                    List<SubCategory> subCategories = insuranceDAO.viewSubCategories();
+                    if (subCategories.isEmpty()) {
+                        System.out.println("No sub-categories available. Please add some.");
+                    } else {
+                        subCategories.forEach(System.out::println);
+                    }
+                    break;
+                case 3:
+                    System.out.print("Enter Sub-Category ID to Update: ");
+                    int updateSubCategoryId = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter New Sub-Category Name: ");
+                    String newSubCategoryName = scanner.nextLine();
+                    insuranceDAO.updateSubCategory(updateSubCategoryId, newSubCategoryName);
+                    break;
+                case 4:
+                    System.out.print("Enter Sub-Category ID to Delete: ");
+                    int deleteSubCategoryId = scanner.nextInt();
+                    insuranceDAO.deleteSubCategory(deleteSubCategoryId);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+    }
+
+    private static void handlePolicyManagement(Scanner scanner, InsuranceDAO insuranceDAO) {
+        System.out.println("\n--- Policy Management ---");
+        System.out.println("1. Add Policy");
+        System.out.println("2. View Policies");
+        System.out.println("3. Update Policy");
+        System.out.println("4. Delete Policy");
+        System.out.print("Enter your choice: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        try {
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Policy ID: ");
+                    int policyId = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter Policy Name: ");
+                    String policyName = scanner.nextLine();
+                    System.out.print("Enter Sub-Category ID: ");
+                    int subCategoryId = scanner.nextInt();
+                    System.out.print("Enter Policy Premium: ");
+                    double policyPremium = scanner.nextDouble();
+                    insuranceDAO.addPolicy(new Policy(policyId, policyName, subCategoryId, policyPremium));
+                    break;
+                case 2:
+                    List<Policy> policies = insuranceDAO.viewPolicies();
+                    if (policies.isEmpty()) {
+                        System.out.println("No policies available. Please add some.");
+                    } else {
+                        policies.forEach(System.out::println);
+                    }
+                    break;
+                case 3:
+                    System.out.print("Enter Policy ID to Update: ");
+                    int updatePolicyId = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter New Policy Name: ");
+                    String newPolicyName = scanner.nextLine();
+                    insuranceDAO.updatePolicy(updatePolicyId, newPolicyName);
+                    break;
+                case 4:
+                    System.out.print("Enter Policy ID to Delete: ");
+                    int deletePolicyId = scanner.nextInt();
+                    insuranceDAO.deletePolicy(deletePolicyId);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+    }
+
+    private static void handleCustomerLoginAndRegistration(Scanner scanner, CustomerDAO customerDAO, InsuranceDAO insuranceDAO) {
+        System.out.println("\n--- Customer Login and Registration ---");
+        System.out.println("1. Login");
+        System.out.println("2. Register");
+        System.out.print("Enter your choice: ");
+        int customerChoice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (customerChoice) {
+            case 1:
+                System.out.print("Enter your username: ");
+                String username = scanner.next();
+                System.out.print("Enter your password: ");
+                String password = scanner.next();
+                Customer customer = customerDAO.loginCustomer(username, password);
+                if (customer != null) {
+                    System.out.println("Login successful.");
+                    handleCustomerOperations(scanner, insuranceDAO, customer);
+                } else {
+                    System.out.println("Login failed. Invalid username or password.");
+                }
+                break;
+            case 2:
+                System.out.print("Enter your username: ");
+                String registerUsername = scanner.next();
+                System.out.print("Enter your password: ");
+                String registerPassword = scanner.next();
+                System.out.print("Enter your full name: ");
+                String fullName = scanner.next();
+                Customer newCustomer = new Customer((int) Math.random(), registerUsername, registerPassword, fullName);
+                customerDAO.registerCustomer(newCustomer);
+                System.out.println("Registration successful. You can now log in.");
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+    }
+
+    private static void handleCustomerOperations(Scanner scanner, InsuranceDAO insuranceDAO, Customer customer) {
+        boolean customerLoggedIn = true;
+        while (customerLoggedIn) {
+            try {
+                System.out.println("\n--- Customer Menu ---");
+                System.out.println("1. View Categories");
+                System.out.println("2. View Sub-Categories");
+                System.out.println("3. View Policies");
+                System.out.println("4. Apply for a Policy");
+                System.out.println("5. View Applied Policies");
+                System.out.println("6. Logout");
                 System.out.print("Enter your choice: ");
                 int choice = scanner.nextInt();
-
                 switch (choice) {
                     case 1:
-                        System.out.println("User List:");
-                        for (Customer c : insuranceDAO.viewCustomers()) {
-                            System.out.println(c);
+                        List<Category> categories = insuranceDAO.viewCategories();
+                        if (categories.isEmpty()) {
+                            System.out.println("No categories available.");
+                        } else {
+                            categories.forEach(System.out::println);
                         }
                         break;
                     case 2:
-                        System.out.print("Enter Category ID: ");
-                        int categoryId = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Enter Category Name: ");
-                        String categoryName = scanner.nextLine();
-                        Category category = new Category(categoryId, categoryName);
-                        insuranceDAO.addCategory(category);
+                        List<SubCategory> subCategories = insuranceDAO.viewSubCategories();
+                        if (subCategories.isEmpty()) {
+                            System.out.println("No sub-categories available.");
+                        } else {
+                            subCategories.forEach(System.out::println);
+                        }
                         break;
                     case 3:
-                        System.out.println("Category List:");
-                        for (Category cat : insuranceDAO.viewCategories()) {
-                            System.out.println(cat);
+                        List<Policy> policies = insuranceDAO.viewPolicies();
+                        if (policies.isEmpty()) {
+                            System.out.println("No policies available.");
+                        } else {
+                            policies.forEach(System.out::println);
                         }
                         break;
                     case 4:
-                        System.out.print("Enter Category ID to Update: ");
-                        int updateCategoryId = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Enter New Category Name: ");
-                        String newCategoryName = scanner.nextLine();
-                        insuranceDAO.updateCategory(updateCategoryId, newCategoryName);
+                        System.out.print("Enter Policy ID to Apply (must be an integer): ");
+                        int policyId = scanner.nextInt();
+                        insuranceDAO.applyPolicy(customer.getUsername(), policyId);
+                        System.out.println("Policy application successful.");
                         break;
                     case 5:
-                        System.out.print("Enter Category ID to Delete: ");
-                        int deleteCategoryId = scanner.nextInt();
-                        insuranceDAO.deleteCategory(deleteCategoryId);
+                        List<Policy> appliedPolicies = insuranceDAO.viewCustomerPolicies(customer.getUsername());
+                        if (appliedPolicies.isEmpty()) {
+                            System.out.println("You have not applied for any policies.");
+                        } else {
+                            appliedPolicies.forEach(System.out::println);
+                        }
                         break;
                     case 6:
-                        System.out.print("Enter Sub-Category ID: ");
-                        int subCategoryId = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Enter Sub-Category Name: ");
-                        String subCategoryName = scanner.nextLine();
-                        System.out.print("Enter Category ID: ");
-                        int subCategoryCategoryId = scanner.nextInt();
-
-                        boolean categoryFound = false;
-                        List<Category> categories = insuranceDAO.viewCategories();
-                        for (Category cat : categories) {
-                            if (cat.getCategoryId() == subCategoryCategoryId) {
-                                categoryFound = true;
-                                System.out.println("Category found.");
-                                break;
-                            }
-
-                        }
-                        if (!categoryFound) {
-                            System.out.println("Category not found. Please enter a valid category ID again.");
-                            break;
-                        }
-
-                        SubCategory subCategory = new SubCategory(subCategoryId, subCategoryName, subCategoryCategoryId);
-                        insuranceDAO.addSubCategory(subCategory);
-                        break;
-                    case 7:
-                        System.out.println("Sub-Category List:");
-                        for (SubCategory subCat : insuranceDAO.viewSubCategories()) {
-                            System.out.println(subCat);
-                        }
-                        break;
-                    case 8:
-                        System.out.print("Enter Sub-Category ID to Update: ");
-                        int updateSubCategoryId = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Enter New Sub-Category Name: ");
-                        String newSubCategoryName = scanner.nextLine();
-                        insuranceDAO.updateSubCategory(updateSubCategoryId, newSubCategoryName);
-                        break;
-                    case 9:
-                        System.out.print("Enter Sub-Category ID to Delete: ");
-                        int deleteSubCategoryId = scanner.nextInt();
-                        insuranceDAO.deleteSubCategory(deleteSubCategoryId);
-                        break;
-                    case 10:
-                        System.out.print("Enter Policy ID: ");
-                        int policyId = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Enter Policy Name: ");
-                        String policyName = scanner.nextLine();
-                        System.out.print("Enter Sub-Category ID: ");
-                        int policySubCategoryId = scanner.nextInt();
-
-                        boolean subcategoryFound = false;
-                        List<SubCategory> subCategories = insuranceDAO.viewSubCategories();
-                        for (SubCategory subcat : subCategories) {
-                            if (subcat.getSubCategoryId() == policySubCategoryId) {
-                                subcategoryFound = true;
-                                System.out.println("SubCategory found.");
-                                break;
-                            }
-
-                        }
-                        if (!subcategoryFound) {
-                            System.out.println("SubCategory not found. Please enter a valid subcategory ID again.");
-                            break;
-                        }
-
-                        System.out.print("Enter Policy Premium: ");
-                        double policypremium = scanner.nextDouble();
-
-
-                        Policy policy = new Policy(policyId, policyName, policySubCategoryId, policypremium);
-                        insuranceDAO.addPolicy(policy);
-                        break;
-                    case 11:
-                        System.out.println("Policy List:");
-                        for (Policy policyItem : insuranceDAO.viewPolicies()) {
-                            System.out.println(policyItem);
-                        }
-                        break;
-                    case 12:
-                        System.out.print("Enter Policy ID to Update: ");
-                        int updatePolicyId = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Enter New Policy Name: ");
-                        String newPolicyName = scanner.nextLine();
-                        insuranceDAO.updatePolicy(updatePolicyId, newPolicyName);
-                        break;
-                    case 13:
-                        System.out.print("Enter Policy ID to Delete: ");
-                        int deletePolicyId = scanner.nextInt();
-                        insuranceDAO.deletePolicy(deletePolicyId);
-                        break;
-                    case 14:
-                        System.out.println("Policy Requests Management:");
-                        insuranceDAO.managePolicyRequests();
-                        break;
-                    case 15:
-                        adminLoggedIn = false;
+                        customerLoggedIn = false;
+                        System.out.println("Logged out from Customer.");
                         break;
                     default:
-                        System.out.println("Invalid choice.");
+                        System.out.println("Invalid choice. Please try again.");
                 }
-            }
-        } else {
-            System.out.println("Invalid Admin credentials.");
-        }
-        return !adminLoggedIn;
-    }
-
-    private static boolean handleCustomerOperations(Scanner scanner, InsuranceDAO insuranceDAO, Customer customer) {
-        boolean customerLoggedIn = true;
-
-
-        while (customerLoggedIn) {
-            System.out.println("\nCustomer Menu");
-            System.out.println("1. View Categories");
-            System.out.println("2. View Sub-Categories");
-            System.out.println("3. View Policies");
-            System.out.println("4. Apply for a Policy");
-            System.out.println("5. View Applied Policies");
-            System.out.println("6. Logout");
-            System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
-
-            switch (choice) {
-                case 1:
-                    System.out.println("Category List:");
-                    for (Category cat : insuranceDAO.viewCategories()) {
-                        System.out.println(cat);
-                    }
-                    break;
-                case 2:
-                    System.out.println("Sub-Category List:");
-                    for (SubCategory subCat : insuranceDAO.viewSubCategories()) {
-                        System.out.println(subCat);
-                    }
-                    break;
-
-                case 3:
-                    System.out.println("Policy List:");
-                    for (Policy policyItem : insuranceDAO.viewPolicies()) {
-                        System.out.println(policyItem);
-                    }
-                    break;
-
-                case 4:
-                    System.out.print("Enter Policy ID to Apply: ");
-                    int policyId = scanner.nextInt();
-                    insuranceDAO.applyPolicy(customer.getUsername(), policyId);
-                    break;
-                case 5:
-                    System.out.println("Policies You Hold:");
-                    for (Policy policy : insuranceDAO.viewCustomerPolicies(customer.getUsername())) {
-                        System.out.println(policy);
-                    }
-                    break;
-                case 6:
-                    customerLoggedIn = false;
-                    break;
-                default:
-                    System.out.println("Invalid choice.");
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.nextLine();
+            } catch (Exception e) {
+                System.out.println("An error occurred: " + e.getMessage());
             }
         }
-
-        return !customerLoggedIn;
     }
 }
-
-
