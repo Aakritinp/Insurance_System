@@ -48,6 +48,14 @@ public  class InsuranceDAOImpl implements InsuranceDAO {
     public void deleteCategory(int categoryId) {
         categories.removeIf(category -> category.getCategoryId() == categoryId);
         System.out.println("Category deleted successfully.");
+
+        if (categories.stream().anyMatch(category -> category.getCategoryId() == categoryId)) {
+            categories.removeIf(category -> category.getCategoryId() == categoryId);
+            System.out.println("Category deleted successfully");
+        }
+        else {
+            System.out.println("Category not found.");
+        }
     }
 
     @Override
@@ -75,8 +83,14 @@ public  class InsuranceDAOImpl implements InsuranceDAO {
 
     @Override
     public void deleteSubCategory(int subCategoryId) {
-        subCategories.removeIf(subCategory -> subCategory.getSubCategoryId() == subCategoryId);
-        System.out.println("Sub-Category deleted successfully.");
+
+        if (subCategories.stream().anyMatch(subCategory -> subCategory.getSubCategoryId() == subCategoryId)) {
+            subCategories.removeIf(subCategory -> subCategory.getSubCategoryId() == subCategoryId);
+            System.out.println("Sub-Category deleted successfully");
+        }
+        else {
+            System.out.println("Sub-Category not found.");
+        }
     }
 
     @Override
@@ -104,8 +118,13 @@ public  class InsuranceDAOImpl implements InsuranceDAO {
 
     @Override
     public void deletePolicy(int policyId) {
-        policies.removeIf(policy -> policy.getPolicyId() == policyId);
-        System.out.println("Policy deleted successfully.");
+        if (policies.stream().anyMatch(policy -> policy.getPolicyId() == policyId)) {
+            policies.removeIf(policy -> policy.getPolicyId() == policyId);
+            System.out.println("Policy deleted successfully.");
+        }
+        else {
+            System.out.println("Policy not found.");
+        }
     }
 
     @Override

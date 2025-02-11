@@ -129,7 +129,13 @@ public class MainClient {
                     scanner.nextLine();
                     System.out.print("Enter New Category Name: ");
                     String newCategoryName = scanner.nextLine();
-                    insuranceDAO.updateCategory(updateCategoryId, newCategoryName);
+                    if(updateCategoryId <= 0 || newCategoryName.isEmpty()) {
+                        System.out.println("Invalid input. Please enter valid values.");
+                    }
+                    else {
+                        insuranceDAO.updateCategory(updateCategoryId, newCategoryName);
+                    }
+
                 }
                 case 4 -> {
                     System.out.print("Enter Category ID to Delete: ");
@@ -163,7 +169,13 @@ public class MainClient {
                     String subCategoryName = scanner.nextLine();
                     System.out.print("Enter Category ID: ");
                     int categoryId = scanner.nextInt();
+                    if (subCategoryId <= 0 || categoryId <= 0 || subCategoryName.isEmpty()) {
+                        System.out.println("Invalid input. Please enter valid values.");
+
+                    }
+                    else {
                     insuranceDAO.addSubCategory(new SubCategory(subCategoryId, subCategoryName, categoryId));
+                    }
                 }
                 case 2 -> {
                     List<SubCategory> subCategories = insuranceDAO.viewSubCategories();
@@ -179,7 +191,12 @@ public class MainClient {
                     scanner.nextLine();
                     System.out.print("Enter New Sub-Category Name: ");
                     String newSubCategoryName = scanner.nextLine();
+                    if(updateSubCategoryId <= 0 || newSubCategoryName.isEmpty()) {
+                        System.out.println("Invalid input. Please enter valid values.");
+                    }
+                    else {
                     insuranceDAO.updateSubCategory(updateSubCategoryId, newSubCategoryName);
+                    }
                 }
                 case 4 -> {
                     System.out.print("Enter Sub-Category ID to Delete: ");
@@ -226,13 +243,20 @@ public class MainClient {
                     }
                 }
                 case 3 -> {
+
                     System.out.print("Enter Policy ID to Update: ");
                     int updatePolicyId = scanner.nextInt();
                     scanner.nextLine();
                     System.out.print("Enter New Policy Name: ");
                     String newPolicyName = scanner.nextLine();
-                    insuranceDAO.updatePolicy(updatePolicyId, newPolicyName);
+                    if(updatePolicyId <= 0 || newPolicyName.isEmpty()) {
+                        System.out.println("Invalid input. Please enter valid values.");
+                    }
+                    else {
+                        insuranceDAO.updatePolicy(updatePolicyId, newPolicyName);
+                    }
                 }
+
                 case 4 -> {
                     System.out.print("Enter Policy ID to Delete: ");
                     int deletePolicyId = scanner.nextInt();
@@ -255,27 +279,27 @@ public class MainClient {
 
         switch (customerChoice) {
             case 1 -> {
-                System.out.print("Enter your email: ");
-                String email = scanner.next();
+                System.out.print("Enter your username: ");
+                String username = scanner.next();
+
                 System.out.print("Enter your password: ");
                 String password = scanner.next();
-                Customer customer = customerDAO.loginCustomer(email, password);
+                Customer customer = customerDAO.loginCustomer(username, password);
                 if (customer != null) {
                     System.out.println("Login successful.");
                     handleCustomerOperations(scanner, insuranceDAO, customer);
                 } else {
-                    System.out.println("Login failed. Invalid email or password.");
+                    System.out.println("Login failed. Invalid username or password.");
                 }
             }
             case 2 -> {
                 System.out.print("Enter your username: ");
-                String registerEmail = scanner.next();
+                String userName = scanner.next();
                 System.out.print("Enter your password: ");
                 String registerPassword = scanner.next();
-                System.out.print("Enter your email: ");
-                String fullName = scanner.next();
 
-                Customer newCustomer = new Customer((int) Math.random(), registerEmail, registerPassword, fullName);
+
+                Customer newCustomer = new Customer((int) Math.random(), userName, registerPassword);
                 customerDAO.registerCustomer(newCustomer);
                 System.out.println("Registration successful. You can now log in.");
             }
@@ -325,7 +349,7 @@ public class MainClient {
                         System.out.print("Enter Policy ID to Apply (must be an integer): ");
                         int policyId = scanner.nextInt();
                         insuranceDAO.applyPolicy(customer.getUsername(), policyId);
-                        System.out.println("Policy application successful.");
+
                     }
                     case 5 -> {
                         List<Policy> appliedPolicies = insuranceDAO.viewCustomerPolicies(customer.getUsername());

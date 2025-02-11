@@ -7,7 +7,7 @@ public class Customer extends User {
     private String fullName;
     private List<Policy> policies = new ArrayList<>();
 
-    public Customer(int userId, String username, String password, String fullName) {
+    public Customer(int userId, String username, String password) {
         super(userId, username, password);
         this.fullName = fullName;
     }
